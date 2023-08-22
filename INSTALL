@@ -1,0 +1,47 @@
+# Prerequisites
+- gcc must be installed
+
+- ensure the limit on open number of files is big enough for mysql. you can check the limit using the following command:
+```
+ulimit -n
+```
+
+if the limit is not at least 32768, it is advised to increase it. please consult your system documentation on how to do that. generally the following procedure should work on most linux distributions:
+```
+nano -w /etc/security/limits.conf
+```
+
+the following lines should exist for the user running the web environment:
+```
+<username> hard nofile 65536
+<username> soft nofile 32768
+```
+
+# Setup the web environment
+- setup the root folder:
+```
+mkdir -p <root-dir>
+./setup-root.sh <root-dir>
+```
+
+this will install and setup alpine linux in <root-dir>, then it will compile a known version of php.
+
+- setup the corpus workbench. CAUTION this also will remove any existing prior corpus workbench data and installation from <root-dir>
+
+```
+./setup-cqpweb.sh <root-dir>
+```
+
+your will be asked for the admin password in the process.
+
+
+# Start the web environment
+
+- start the web environment:
+
+```
+<root-dir>/sbin/init
+```
+
+this will start the mysql server, the http server and then launch a shell. if you exit that shell, the spawned processes will be stopped.
+
