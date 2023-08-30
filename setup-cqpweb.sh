@@ -19,7 +19,7 @@ cp "$SRCDIR/src/php.ini" "$DESTDIR/usr/local/lib/php.ini"
 cp "$SRCDIR/src/init.c" "$DESTDIR/src"
 
 rm -f "$DESTDIR/sbin/init"
-#echo '#define ROOT_DIR "'"$DESTDIR"'"' >"$DESTDIR/src/config.h"
+echo '#define ROOT_DIR "'"$DESTDIR"'"' >"$DESTDIR/src/config.h"
 #gcc -o "$DESTDIR/sbin/init" "$SRCDIR/src/init.c" -I"$DESTDIR/src"
 
 rm -Rf "$DESTDIR/var/lib/mysql"

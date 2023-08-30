@@ -9,11 +9,12 @@ if [ "$1" == "" ]; then
 	else
 		DESTDIR="$CQPWEB_PATH"
 	fi
+	mkdir -p "$DESTDIR"
 else
+	mkdir -p "$1"
 	DESTDIR="$(cd -- "$1" && pwd)"
 fi
 
-mkdir -p "$DESTDIR"
 
 
 #git clone https://github.com/alpinelinux/alpine-chroot-install/
