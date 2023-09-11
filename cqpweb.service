@@ -1,0 +1,12 @@
+[Unit]
+Description=CQP Web
+
+[Service]
+User=iwadmin
+WorkingDirectory=/opt/cqpweb
+ExecStart=/opt/cqpweb/sbin/init
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
