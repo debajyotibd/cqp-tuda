@@ -13,7 +13,5 @@ else
 	DESTDIR="$(cd -- "$1" && pwd)"
 fi
 
-
-"$DESTDIR/sbin/init"
-#unshare --map-root-user chroot "$DESTDIR" /sbin/init
+unshare --map-root-user chroot "$DESTDIR" /bin/bash
 

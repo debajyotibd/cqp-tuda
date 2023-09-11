@@ -13,11 +13,37 @@
 #include "config.h"
 
 #define ARRAY_SIZE(X) (sizeof(X) / sizeof(*(X)))
+#define TIMEO 30
 
 typedef struct {
+	const char *chdir;
 	char **argv;
 	pid_t pid;
 } Process;
+
+typedef struct {
+	int sig;
+	void (*handler)(void);
+} Sigmap;
+
+static bool running;
+
+static void sigreap(void) {
+	while(waitpid(-1, NULL, WNOHANG) > 0);
+	alarm(TIMEO);
+}
+
+static void sigexit(void) {
+	running = false;
+}
+
+static Sigmap sigmap[] = {
+	{ SIGALRM, sigreap },
+	{ SIGCHLD, sigreap },
+	{ SIGUSR1, sigexit },
+	{ SIGINT, sigexit },
+	{ SIGTERM, sigexit },
+};
 
 static Process processes[] = {
 	{ .argv= (char*[]){ "/usr/sbin/lighttpd", "-f", "/etc/lighttpd/lighttpd.conf", "-D", NULL } },
@@ -43,6 +69,8 @@ int main(int argn, char **argv) {
 	uid_t uid = geteuid();
 	gid_t gid = getegid();
 	int nullfd = open("/dev/null", O_WRONLY);
+	sigset_t sigset;
+
 	if(nullfd < 0) {
 		fprintf(stderr, "error opening /dev/null\n");
 		return 1;
@@ -109,6 +137,13 @@ int main(int argn, char **argv) {
 			break;
 		}
 		else if(pid == 0) {
+			if(proc->chdir != NULL) {
+				ret = chdir(proc->chdir);
+				if(ret < 0) {
+					fprintf(stderr, "error changing working directory to '%s': %s\n", proc->chdir, strerror(errno));
+					return 1;
+				}
+			}
 			dup2(nullfd, STDOUT_FILENO);
 			dup2(nullfd, STDERR_FILENO);
 			ret = execve(proc->argv[0], proc->argv, NULL);
@@ -136,10 +171,24 @@ int main(int argn, char **argv) {
 		printf("started process %s with pid %d\n", proc->argv[0], proc->pid);
 	}
 	
-	ret = system("/bin/bash");
+	sigfillset(&sigset);
+	sigprocmask(SIG_BLOCK, &sigset, NULL);
+	for(running = true; running;) {
+		int sig;
+		alarm(TIMEO);
+		sigwait(&sigset, &sig);
+		for(size_t i = 0; i < ARRAY_SIZE(sigmap); i++) {
+			if(sigmap[i].sig == sig) {
+				sigmap[i].handler();
+				break;
+			}
+		}
+	}
+
+	/*ret = system("/bin/bash");
 	if(ret) {
 		fprintf(stderr, "error executing shell: %s\n", strerror(errno));
-	}
+	}*/
 
 	for(size_t i = 0; i < ARRAY_SIZE(processes); i++) {
 		Process *proc = processes + i;
@@ -153,4 +202,5 @@ int main(int argn, char **argv) {
 
 	return 0;
 }
+
 

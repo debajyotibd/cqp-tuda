@@ -2,6 +2,9 @@
 
 export PATH="$PATH:/sbin"
 
+SRCDIR="$(dirname -- "${BASH_SOURCE[0]}")"
+SRCDIR="$(cd -- "$SRCDIR" && pwd)"
+
 [[ -f env.sh ]] && source env.sh
 
 if [ "$1" == "" ]; then
@@ -13,7 +16,7 @@ else
 	DESTDIR="$(cd -- "$1" && pwd)"
 fi
 
+cp -R "$SRCDIR/src" "$DESTDIR"
 
-"$DESTDIR/sbin/init"
-#unshare --map-root-user chroot "$DESTDIR" /sbin/init
+unshare --map-root-user chroot "$DESTDIR" /src/update.sh
 

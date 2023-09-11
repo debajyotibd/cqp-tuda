@@ -19,6 +19,3 @@ php autosetup.php
 
 kill $MYSQL_PID
 
-gcc -o /sbin/init -static /src/init.c
-strip /sbin/init
-
