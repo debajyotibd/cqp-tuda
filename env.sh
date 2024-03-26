@@ -1,8 +1,10 @@
 DESTDIR="$HOME/.local/opt/cqpweb"
 
 #if [ "$CHNS_PATH" == "" ]; then
-#	DESTDIR="$HOME/cei/$PROJECT"
+#	DESTDIR="$HOME/.local/opt/$PROJECT"
 #else
 #	DESTDIR="$CHNS_PATH"
 #fi
+
+
 
